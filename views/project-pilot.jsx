@@ -1,7 +1,7 @@
 import React, { useState } from "react";
 import ArrowRightCircleIcon from "@atlaskit/icon/glyph/arrow-right-circle";
 import { token } from "@atlaskit/tokens";
-import { B500 } from "@atlaskit/theme/colors";
+import { B500, N50 } from "@atlaskit/theme/colors";
 import Heading from "@atlaskit/heading";
 import Image from "@atlaskit/image";
 import { PulseLoader } from "react-spinners";
@@ -49,6 +49,9 @@ const App = () => {
     });
     setValue("");
   }
+
+  const isLoading = messages.some((message) => message.isLoading);
+  const isDisabled = !value || isLoading;
 
   return (
     <div style={{ height: "100vh" }}>
@@ -100,10 +103,14 @@ const App = () => {
               value={value}
               placeholder="Send a message"
               elemAfterInput={
-                <UnstyledButton onClick={onSubmit}>
+                <UnstyledButton disabled={isDisabled} onClick={onSubmit}>
                   <ArrowRightCircleIcon
                     size="large"
-                    primaryColor={token("color.icon.brand", B500)}
+                    primaryColor={
+                      isDisabled
+                        ? token("color.chart.neutral", N50)
+                        : token("color.icon.brand", B500)
+                    }
                     label="end"
                   />
                 </UnstyledButton>

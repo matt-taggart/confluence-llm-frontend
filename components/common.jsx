@@ -14,6 +14,10 @@ export const UnstyledButton = styled.button`
   &:hover {
     cursor: pointer;
   }
+
+  &:disabled {
+    cursor: initial;
+  }
 `;
 
 export const StyledTextField = styled(TextField)`
