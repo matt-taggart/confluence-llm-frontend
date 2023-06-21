@@ -29,12 +29,12 @@
         ]
       },
       {
-        "key": "hello-world-page-confluence",
+        "key": "project-pilot-page-confluence",
         "location": "system.header/left",
         "name": {
-          "value": "Hello World"
+          "value": "ProjectPilot"
         },
-        "url": "/hello-world",
+        "url": "/project-pilot",
         "conditions": [
           {
             "condition": "user_is_logged_in"
