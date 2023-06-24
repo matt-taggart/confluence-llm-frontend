@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import ArrowRightCircleIcon from "@atlaskit/icon/glyph/arrow-right-circle";
 import { token } from "@atlaskit/tokens";
 import { B500, N50 } from "@atlaskit/theme/colors";
@@ -82,6 +82,14 @@ const App = () => {
   const isLoading = messages.some((message) => message.isLoading);
   const isDisabled = !query || isLoading;
 
+  useEffect(() => {
+    window.scroll({
+      top: document.body.scrollHeight,
+      left: 0,
+      behavior: "smooth",
+    });
+  }, [messages]);
+
   return (
     <div style={{ height: "100vh" }}>
       <Page>
@@ -95,7 +103,7 @@ const App = () => {
               />
             </LogoContainer>
           ) : (
-            <ChatMessages>
+            <ChatMessages id="chat-messages">
               {messages.map((question) => {
                 return question.type === "user" ? (
                   <ChatBubbleContainer key={question.id}>

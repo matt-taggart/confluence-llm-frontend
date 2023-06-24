@@ -5,7 +5,6 @@ import { B300, N100 } from "@atlaskit/theme/colors";
 export const ChatContainer = styled.div`
   margin: 0 auto;
   width: 70vw;
-  textalign: center;
   height: 100%;
 `;
 
