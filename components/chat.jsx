@@ -14,31 +14,26 @@ export const ChatBubbleContainer = styled.div`
   margin: 1rem auto;
 `;
 
-export const UserBubble = styled.div`
+const BaseBubble = styled.div`
   font-size: 16px;
   margin-bottom: 8px;
   padding: 13px 14px;
   border-radius: 5px;
   color: white;
-  background: ${token("color.background.selected.bold", B300)};
   display: flex;
   justify-content: center;
   align-items: center;
   min-width: 75px;
+  max-width: 60%;
 `;
 
-export const BotBubble = styled.div`
-  font-size: 16px;
-  margin-bottom: 8px;
-  padding: 13px 14px;
-  border-radius: 5px;
-  color: white;
+export const UserBubble = styled(BaseBubble)`
+  background: ${token("color.background.selected.bold", B300)};
+`;
+
+export const BotBubble = styled(BaseBubble)`
   margin-left: auto;
   background: ${token("color.chart.neutral", N100)};
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  min-width: 75px;
 `;
 
 export const ChatMessages = styled.div`

@@ -9,7 +9,7 @@
   "lifecycle": {
     "installed": "/installed"
   },
-  "scopes": ["READ"],
+  "scopes": ["READ", "WRITE"],
   "apiMigrations": {
     "signed-install": true
   },

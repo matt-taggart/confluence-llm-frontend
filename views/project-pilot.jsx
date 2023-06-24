@@ -5,8 +5,8 @@ import { B500, N50 } from "@atlaskit/theme/colors";
 import Heading from "@atlaskit/heading";
 import Image from "@atlaskit/image";
 import { PulseLoader } from "react-spinners";
+import { v4 as uuidv4 } from "uuid";
 
-import { delay } from "../utils/test-utils";
 import {
   UserBubble,
   BotBubble,
@@ -21,37 +21,66 @@ import { Page, UnstyledButton, StyledTextField } from "../components/common";
 import Airplane from "../assets/airplane.png";
 
 const App = () => {
-  const [value, setValue] = useState("");
+  const [query, setQuery] = useState("");
   const [messages, setMessages] = useState([]);
 
   async function onSubmit() {
-    setMessages((prevMessages) => [
-      ...prevMessages,
-      { id: messages.length + 1, type: "user", value, isLoading: false },
-    ]);
-
-    const nextMessageIndex = messages.length + 1;
-    setMessages((prevMessages) => [
-      ...prevMessages,
-      { id: nextMessageIndex, type: "bot", value, isLoading: true },
-    ]);
-
-    await delay();
-
     setMessages((prevMessages) => {
-      return prevMessages.map((message) => {
-        if (message.id === nextMessageIndex) {
-          return { ...message, isLoading: false };
-        }
-
-        return message;
-      });
+      return [
+        ...prevMessages,
+        {
+          id: uuidv4(),
+          type: "user",
+          value: query,
+          isLoading: false,
+        },
+      ];
     });
-    setValue("");
+
+    AP.context.getToken(function (token) {
+      const botMessageId = uuidv4();
+      setMessages((prevMessages) => {
+        return [
+          ...prevMessages,
+          {
+            id: botMessageId,
+            type: "bot",
+            value: "",
+            isLoading: true,
+          },
+        ];
+      });
+
+      fetch("/ask", {
+        method: "POST",
+        headers: {
+          Authorization: "JWT " + token,
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({ query }),
+      })
+        .then((response) => response.json())
+        .then((data) => {
+          setMessages((prevMessages) => {
+            return prevMessages.map((message) => {
+              if (message.id === botMessageId) {
+                return { ...message, value: data.answer, isLoading: false };
+              }
+
+              return message;
+            });
+          });
+        })
+        .catch((error) => {
+          console.error("Error:", error);
+        });
+    });
+
+    setQuery("");
   }
 
   const isLoading = messages.some((message) => message.isLoading);
-  const isDisabled = !value || isLoading;
+  const isDisabled = !query || isLoading;
 
   return (
     <div style={{ height: "100vh" }}>
@@ -94,13 +123,13 @@ const App = () => {
         <FixedFooter>
           <SearchBar>
             <StyledTextField
-              onChange={(event) => setValue(event.target.value)}
+              onChange={(event) => setQuery(event.target.value)}
               onKeyPress={(event) => {
                 if (event.key === "Enter") {
                   onSubmit();
                 }
               }}
-              value={value}
+              value={query}
               placeholder="Send a message"
               elemAfterInput={
                 <UnstyledButton disabled={isDisabled} onClick={onSubmit}>

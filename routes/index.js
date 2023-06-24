@@ -1,3 +1,5 @@
+import fetch from "node-fetch";
+
 export default function routes(app, addon) {
   // Redirect root path to /atlassian-connect.json,
   // which will be served by atlassian-connect-express.
@@ -20,5 +22,22 @@ export default function routes(app, addon) {
     );
   });
 
-  // Add additional route handlers here...
+  app.post("/ask", async (req, res) => {
+    try {
+      const response = await fetch("http://127.0.0.1:5000/ask", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify(req.body),
+      });
+      const { answer } = await response.json();
+      console.log("%canswer", "color:cyan; ", answer);
+
+      res.send({ answer: answer });
+    } catch (error) {
+      console.log("%cerror", "color:cyan; ", error);
+      res.status(400).send({ message: error.message });
+    }
+  });
 }
