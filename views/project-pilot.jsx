@@ -57,7 +57,7 @@ const App = () => {
           Authorization: "JWT " + token,
           "Content-Type": "application/json",
         },
-        body: JSON.stringify({ query }),
+        body: JSON.stringify({ query, messages }),
       })
         .then((response) => response.json())
         .then((data) => {
@@ -71,8 +71,21 @@ const App = () => {
             });
           });
         })
-        .catch((error) => {
-          console.error("Error:", error);
+        .catch((_) => {
+          setMessages((prevMessages) => {
+            return prevMessages.map((message) => {
+              if (message.id === botMessageId) {
+                return {
+                  ...message,
+                  value:
+                    "We apologize, but there was an issue processing your request. Could you kindly try again? If the problem persists, we're here to help. Please reach out to our support team at support@redelklabs.com, and we'll promptly assist you.",
+                  isLoading: false,
+                };
+              }
+
+              return message;
+            });
+          });
         });
     });
 
@@ -119,7 +132,9 @@ const App = () => {
                           speedMultiplier={0.75}
                         />
                       ) : (
-                        <>{question.value}</>
+                        <div
+                          dangerouslySetInnerHTML={{ __html: question.value }}
+                        />
                       )}
                     </BotBubble>
                   </ChatBubbleContainer>
@@ -133,7 +148,7 @@ const App = () => {
             <StyledTextField
               onChange={(event) => setQuery(event.target.value)}
               onKeyPress={(event) => {
-                if (event.key === "Enter") {
+                if (query && event.key === "Enter") {
                   onSubmit();
                 }
               }}

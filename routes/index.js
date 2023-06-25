@@ -22,22 +22,30 @@ export default function routes(app, addon) {
     );
   });
 
-  app.post("/ask", async (req, res) => {
+  app.post("/ask", addon.authenticate(true), async (req, res) => {
     try {
+      const clientKey = req.context.clientKey;
+      const ctxToken = req.context.token;
       const response = await fetch("http://127.0.0.1:5000/ask", {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
+          Authorization: `Bearer ${ctxToken}`,
+          "x-project-pilot-api-key": process.env.PROJECT_PILOT_API_KEY,
         },
-        body: JSON.stringify(req.body),
+        body: JSON.stringify({ ...req.body, clientKey }),
       });
+
+      if (!response.ok) {
+        res.status(response.status).send({ message: "Invalid request" });
+        return;
+      }
+
       const { answer } = await response.json();
-      console.log("%canswer", "color:cyan; ", answer);
 
       res.send({ answer: answer });
     } catch (error) {
-      console.log("%cerror", "color:cyan; ", error);
-      res.status(400).send({ message: error.message });
+      res.status(500).send({ message: "Something went wrong" });
     }
   });
 }
