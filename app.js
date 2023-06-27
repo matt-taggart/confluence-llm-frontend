@@ -11,6 +11,7 @@ import cookieParser from "cookie-parser";
 import errorHandler from "errorhandler";
 import morgan from "morgan";
 import cors from "cors";
+import * as jwt from "atlassian-jwt";
 
 // atlassian-connect-express also provides a middleware
 import ace from "atlassian-connect-express";
@@ -94,13 +95,69 @@ addon.on("host_settings_saved", async function (_, clientInfo) {
   const { clientKey, publicKey, sharedSecret, baseUrl } = clientInfo;
 
   try {
-    await supabase.from("companies").insert({
-      id: uuidv4(),
-      client_key: clientKey,
-      shared_secret: sharedSecret,
-      base_url: baseUrl,
-      public_key: publicKey,
+    const { data: companyData } = await supabase
+      .from("companies")
+      .select("id")
+      .eq("client_key", clientKey);
+
+    const existingCompanyId = companyData[0].id;
+
+    try {
+      if (existingCompanyId) {
+        const { data: updatedData } = await supabase
+          .from("companies")
+          .update({
+            client_key: clientKey,
+            shared_secret: sharedSecret,
+            base_url: baseUrl,
+            public_key: publicKey,
+          })
+          .eq("id", existingCompanyId);
+      } else {
+        await supabase.from("companies").insert({
+          id: uuidv4(),
+          client_key: clientKey,
+          shared_secret: sharedSecret,
+          base_url: baseUrl,
+          public_key: publicKey,
+        });
+      }
+    } catch (error) {
+      console.log("%cerror", "color:cyan; ", error);
+    }
+
+    const req = jwt.fromMethodAndUrl(
+      "GET",
+      "/api/v2/pages?body-format=storage"
+    );
+
+    const now = Math.floor(Date.now() / 1000);
+
+    const tokenData = {
+      iss: clientInfo.key,
+      iat: now,
+      exp: now + 180,
+      qsh: jwt.createQueryStringHash(req),
+    };
+
+    const token = jwt.encodeSymmetric(tokenData, sharedSecret);
+
+    const projectPilotBaseUrl = process.env.PROJECT_PILOT_BASE_URL;
+    await fetch(`${projectPilotBaseUrl}/initialize`, {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+        Authorization: `Bearer ${token}`,
+        "x-project-pilot-api-key": process.env.PROJECT_PILOT_API_KEY,
+      },
+      body: JSON.stringify({
+        clientKey,
+        baseUrl,
+      }),
     });
+
+    const res = await response.text();
+    console.log("%cres", "color:cyan; ", res);
   } catch (error) {
     console.log("%cerror", "color:cyan; ", error);
     return;
