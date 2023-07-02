@@ -1,6 +1,6 @@
 import styled from "styled-components";
 import { token } from "@atlaskit/tokens";
-import { B300, N100 } from "@atlaskit/theme/colors";
+import { B300, N30 } from "@atlaskit/theme/colors";
 
 export const ChatContainer = styled.div`
   margin: 0 auto;
@@ -27,12 +27,16 @@ const BaseBubble = styled.div`
 `;
 
 export const UserBubble = styled(BaseBubble)`
+  margin-left: auto;
   background: ${token("color.background.selected.bold", B300)};
 `;
 
 export const BotBubble = styled(BaseBubble)`
-  margin-left: auto;
-  background: ${token("color.chart.neutral", N100)};
+  color: rgba(0, 0, 0, 0.8);
+  background: ${token("color.chart.neutral", N30)};
+  a {
+    color: blue;
+  }
 `;
 
 export const ChatMessages = styled.div`

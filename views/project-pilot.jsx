@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from "react";
 import ArrowRightCircleIcon from "@atlaskit/icon/glyph/arrow-right-circle";
 import { token } from "@atlaskit/tokens";
-import { B500, N50 } from "@atlaskit/theme/colors";
+import { B500, N50, N60 } from "@atlaskit/theme/colors";
 import Heading from "@atlaskit/heading";
 import Image from "@atlaskit/image";
 import { PulseLoader } from "react-spinners";
@@ -127,7 +127,7 @@ const App = () => {
                     <BotBubble>
                       {question.isLoading ? (
                         <PulseLoader
-                          color="white"
+                          color={token("color.chart.neutral", N60)}
                           size={12}
                           speedMultiplier={0.75}
                         />

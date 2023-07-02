@@ -90,6 +90,30 @@ app.use(compression());
 // Include atlassian-connect-express middleware
 app.use(addon.middleware());
 
+// const jwt = require('@atlassian/jwt');
+
+// const resources = ['/rest/resource/one', '/rest/resource/two', '/rest/resource/three'];
+
+// resources.forEach(resource => {
+//   const req = jwt.fromMethodAndUrl('GET', resource);
+//   // Then create the JWT token
+//   const token = jwt.encode(req, 'your_shared_secret');
+
+//   // Now you can use this token to authenticate your request
+//   // For example, with a fetch or axios request
+//   axios.get(`https://your-instance.atlassian.net${resource}`, {
+//     headers: {
+//       Authorization: `Bearer ${token}`
+//     }
+//   })
+//   .then(response => {
+//     console.log(response.data);
+//   })
+//   .catch(error => {
+//     console.error(error);
+//   });
+// });
+
 addon.on("host_settings_saved", async function (_, clientInfo) {
   console.log("New host settings were saved!");
   const { clientKey, publicKey, sharedSecret, baseUrl } = clientInfo;
@@ -138,12 +162,13 @@ addon.on("host_settings_saved", async function (_, clientInfo) {
       iat: now,
       exp: now + 180,
       qsh: jwt.createQueryStringHash(req),
+      aud: clientKey,
     };
 
     const token = jwt.encodeSymmetric(tokenData, sharedSecret);
 
     const projectPilotBaseUrl = process.env.PROJECT_PILOT_BASE_URL;
-    await fetch(`${projectPilotBaseUrl}/initialize`, {
+    const response = await fetch(`${projectPilotBaseUrl}/initialize`, {
       method: "POST",
       headers: {
         "Content-Type": "application/json",

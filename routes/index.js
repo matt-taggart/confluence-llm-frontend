@@ -21,19 +21,22 @@ export default function routes(app, addon) {
       }
     );
   });
+  5;
 
   app.post("/ask", addon.authenticate(true), async (req, res) => {
     try {
       const clientKey = req.context.clientKey;
+      const baseUrl = req.context.hostBaseUrl;
       const ctxToken = req.context.token;
-      const response = await fetch("http://127.0.0.1:5000/ask", {
+      const projectPilotBaseUrl = process.env.PROJECT_PILOT_BASE_URL;
+      const response = await fetch(`${projectPilotBaseUrl}/ask`, {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
           Authorization: `Bearer ${ctxToken}`,
           "x-project-pilot-api-key": process.env.PROJECT_PILOT_API_KEY,
         },
-        body: JSON.stringify({ ...req.body, clientKey }),
+        body: JSON.stringify({ ...req.body, clientKey, baseUrl }),
       });
 
       if (!response.ok) {
